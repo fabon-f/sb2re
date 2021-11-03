@@ -8,6 +8,7 @@ const usage =
 
 ${colors.bold("Usage")}
     cat input | sb2re [options] > out.re
+    sb2re input [options] > out.re
     sb2re input out.re [options]
 
 ${colors.bold("Options")}
