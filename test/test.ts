@@ -70,3 +70,19 @@ Deno.test("Multiline text", () => {
 fuga`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Itemization", () => {
+    const sbContent = `foo
+ hoge
+\t\tfuga
+  piyo
+foo`;
+    const reviewCode = `foo
+
+ * hoge
+ ** fuga
+ ** piyo
+
+foo`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});

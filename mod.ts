@@ -10,12 +10,31 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
     const baseHeadingLevel = option.baseHeadingLevel || 3;
 
     let out = "";
+    const state = {
+        inItemization: false
+    };
 
     for (const n of ast) {
         if (n.type === "title") {
             out += `= ${n.text}`;
             out += "\n\n";
         } else if (n.type === "line") {
+            if (n.indent !== 0) {
+                // 箇条書き
+                if (!state.inItemization) {
+                    // 箇条書き開始
+                    state.inItemization = true;
+                }
+                const lineContent = n.nodes.map(nodeToReView).join("");
+                out += ` ${"*".repeat(n.indent)} ${lineContent}\n`;
+                continue;
+            } else {
+                if (state.inItemization) {
+                    // 箇条書き終了
+                    state.inItemization = false;
+                    out += "\n";
+                }
+            }
             if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
                 const boldNode = n.nodes[0];
@@ -74,5 +93,6 @@ function nodeToReView(node: scrapboxParser.Node): string {
 
 export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {
     const ast = scrapboxParser.parse(src, option);
+    console.dir(ast, {depth:100});
     return generateReView(ast, option);
 }
