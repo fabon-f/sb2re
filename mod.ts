@@ -29,6 +29,12 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 }
                 out += `${n.nodes[0].nodes.map(nodeToReView).join("")}\n`;
                 continue;
+            } else {
+                if (state.inBlockQuote) {
+                    // 引用終了
+                    state.inBlockQuote = false;
+                    out += "//}\n\n";
+                }
             }
             if (n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "commandLine") {
                 // コマンドライン
@@ -53,11 +59,6 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     // 箇条書き終了
                     state.inItemization = false;
                     out += "\n";
-                }
-                if (state.inBlockQuote) {
-                    // 引用終了
-                    state.inBlockQuote = false;
-                    out += "//}\n\n";
                 }
             }
             if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
