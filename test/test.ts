@@ -100,3 +100,16 @@ hoge@<strong>{fuga}
 foo`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Command line", () => {
+    const sbContent = `$ cmd
+% cmd`;
+    const reviewCode = `//cmd{
+$ cmd
+//}
+
+//cmd{
+% cmd
+//}`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
