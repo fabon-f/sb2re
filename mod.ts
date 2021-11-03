@@ -4,6 +4,8 @@ type ReViewOption = {
     baseHeadingLevel? : number;
 };
 
+export type ConverterOption = ReViewOption & scrapboxParser.ParserOption;
+
 function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): string {
     const baseHeadingLevel = option.baseHeadingLevel || 3;
 
@@ -69,7 +71,7 @@ function nodeToReView(node: scrapboxParser.Node): string {
     }
 }
 
-export default function scrapboxToReView(src: string, option: ReViewOption & scrapboxParser.ParserOption = {}): string {
+export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {
     const ast = scrapboxParser.parse(src, option);
     return generateReView(ast, option);
 }
