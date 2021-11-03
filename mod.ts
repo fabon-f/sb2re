@@ -14,7 +14,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
     for (const n of ast) {
         if (n.type === "title") {
             out += `= ${n.text}`;
-            out += "\n";
+            out += "\n\n";
         } else if (n.type === "line") {
             if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
@@ -22,10 +22,10 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
                 if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
                 out += `${header} ${boldNode.nodes[0].text}`;
-                out += "\n";
+                out += "\n\n";
             } else {
                 out += n.nodes.map(nodeToReView).join("");
-                out += "\n";
+                out += "\n\n";
             }
         }
     }

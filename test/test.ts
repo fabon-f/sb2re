@@ -12,7 +12,9 @@ Deno.test("Heading", () => {
 [*** hoge]
 [** fuga]`;
     const reviewCode = `= hoge
+
 == hoge
+
 === fuga
 `;
     assertConvertion(sbContent, reviewCode);
@@ -23,7 +25,9 @@ Deno.test("Heading with baseHeadingLevel", () => {
 [**** hoge]
 [*** fuga]`;
     const reviewCode = `= hoge
+
 == hoge
+
 === fuga
 `;
     assertConvertion(sbContent, reviewCode, { baseHeadingLevel: 4 });
@@ -56,5 +60,13 @@ Deno.test("Inline code", () => {
 Deno.test("Formula", () => {
     const sbContent = "[$ E = mc^2]";
     const reviewCode = "@<m>{E = mc^2}";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Multiline text", () => {
+    const sbContent = "hoge\nfuga";
+    const reviewCode = `hoge
+
+fuga`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
