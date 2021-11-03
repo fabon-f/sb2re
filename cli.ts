@@ -39,6 +39,10 @@ if (options._[1] === "-" || options._[1] === undefined) {
 async function readSource() {
     if (options._.length === 0 || options._[0] === "-") {
         // read from stdin
+        if (Deno.isatty(Deno.stdin.rid)) {
+            console.log(colors.bold(colors.red("Specify input file.")));
+            Deno.exit(1);
+        }
         const lines = [];
         for await (const line of io.readLines(Deno.stdin)) {
             lines.push(line);
