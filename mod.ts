@@ -38,7 +38,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             }
             if (n.type === "codeBlock" && n.indent === 0) {
                 // コードブロック
-                out += `//emlist[${n.fileName}]{\n${n.content}\n//}\n\n`;
+                out += `//emlist[${escapeBlockCommandOption(n.fileName)}]{\n${n.content}\n//}\n\n`;
                 continue;
             }
             if (n.type === "table" && n.indent === 0) {
@@ -91,11 +91,11 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
 function generateReViewTable(node: scrapboxParser.Table) {
     const headerColumns = node.cells[0];
     if (headerColumns === undefined) {
-        return `//emtable[${node.fileName}]{\n//}`;
+        return `//emtable[${escapeBlockCommandOption(node.fileName)}]{\n//}`;
     }
     const headerText = generateReViewTableColumn(headerColumns);
     const borderText = "------------";
-    return `//emtable[${node.fileName}]{
+    return `//emtable[${escapeBlockCommandOption(node.fileName)}]{
 ${headerText}
 ${borderText}
 ${node.cells.slice(1).map(generateReViewTableColumn).join("\n")}
@@ -151,6 +151,10 @@ function escapeInlineCommand(content: string): string {
 
 function escapeHrefUrl(href: string) {
     return escapeInlineCommand(href).replaceAll(",", "\\,");
+}
+
+function escapeBlockCommandOption(option: string) {
+    return option.replaceAll("]", "\\]");
 }
 
 export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {

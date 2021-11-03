@@ -117,12 +117,12 @@ $ cmd
 });
 
 Deno.test("Code block", () => {
-    const sbContent = `code:a.js
+    const sbContent = `code:a.js[]
  function a() {
      console.log("hoge");
  }
 foo`;
-    const reviewCode = `//emlist[a.js]{
+    const reviewCode = `//emlist[a.js[\\]]{
 function a() {
     console.log("hoge");
 }
@@ -133,12 +133,12 @@ foo`;
 });
 
 Deno.test("Table", () => {
-    const sbContent = `table:title
+    const sbContent = `table:title[]
  abc\tdef
  aaaaaaaaaaaa\tbbbbbb
  col1\tcol2
 text`;
-    const reviewCode = `//emtable[title]{
+    const reviewCode = `//emtable[title[\\]]{
 abc\tdef
 ------------
 aaaaaaaaaaaa\tbbbbbb
