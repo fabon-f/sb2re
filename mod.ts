@@ -115,14 +115,14 @@ function nodeToReView(node: scrapboxParser.Node): string {
         if (node.pathType === "root") {
             console.info(`An internal link to a Scrapbox's page is used: ${node.raw}`);
             const href = new URL(node.href, "https://scrapbox.io").href;
-            return `@<href>{${href}}`;
+            return `@<href>{${escapeHrefUrl(href)}}`;
         }
-        return node.content === "" ? `@<href>{${node.href}}` : `@<href>{${node.href}, ${node.content}}`;
+        return node.content === "" ? `@<href>{${escapeHrefUrl(node.href)}}` : `@<href>{${escapeHrefUrl(node.href)}, ${escapeHrefUrl(node.content)}}`;
     } else if (node.type === "hashTag") {
         console.error(`Can't convert relative links. Please use absolute links instead: ${node.raw}`);
         return node.raw;
     } else if (node.type === "strong") {
-        return `@<strong>{${node.nodes.map(nodeToReView).join("")}}`;
+        return `@<strong>{${escapeInlineCommand(node.nodes.map(nodeToReView).join(""))}}`;
     } else if (node.type === "decoration") {
         return node.decos.reduce((inside, decoration) => {
             if (/\*-[0-9]*/.test(decoration)) {
@@ -133,16 +133,24 @@ function nodeToReView(node: scrapboxParser.Node): string {
                 return `@<del>{${inside}}`;
             }
             return inside;
-        }, node.nodes.map(nodeToReView).join(""));
+        }, escapeInlineCommand(node.nodes.map(nodeToReView).join("")));
     } else if (node.type === "code") {
-        return `@<code>{${node.text}}`;
+        return `@<code>{${escapeInlineCommand(node.text)}}`;
     } else if (node.type === "formula") {
-        return `@<m>{${node.formula}}`;
+        return `@<m>{${escapeInlineCommand(node.formula)}}`;
     } else if (node.type === "plain") {
         return node.text;
     } else {
         return node.raw;
     }
+}
+
+function escapeInlineCommand(content: string): string {
+    return content.replaceAll("}", "\\}").replace(/\\$/, "\\\\")
+}
+
+function escapeHrefUrl(href: string) {
+    return escapeInlineCommand(href).replaceAll(",", "\\,");
 }
 
 export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {

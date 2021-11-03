@@ -36,14 +36,14 @@ Deno.test("Heading with baseHeadingLevel", () => {
 });
 
 Deno.test("Decoration", () => {
-    const sbContent = "[[Bold]][* Bold][**/- BoldStrikeItalic]";
-    const reviewCode = "@<strong>{Bold}@<strong>{Bold}@<strong>{@<del>{@<i>{BoldStrikeItalic}}}";
+    const sbContent = "[[Bold]][* Bold{}{}\\][**/- BoldStrikeItalic]";
+    const reviewCode = "@<strong>{Bold}@<strong>{Bold{\\}{\\}\\\\}@<strong>{@<del>{@<i>{BoldStrikeItalic}}}";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
 Deno.test("External Link", () => {
-    const sbContent = "https://google.com [https://google.com] [https://google.com G] [G https://google.com]"
-    const reviewCode = "@<href>{https://google.com} @<href>{https://google.com} @<href>{https://google.com, G} @<href>{https://google.com, G}";
+    const sbContent = "https://google.com [https://google.com/,{}] [https://google.com G,{}] [G https://google.com]"
+    const reviewCode = "@<href>{https://google.com} @<href>{https://google.com/\\,{\\}} @<href>{https://google.com, G\\,{\\}} @<href>{https://google.com, G}";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
@@ -54,14 +54,14 @@ Deno.test("Link across projects", () => {
 });
 
 Deno.test("Inline code", () => {
-    const sbContent = "`code`";
-    const reviewCode = "@<code>{code}";
+    const sbContent = "`\\code{}\\`";
+    const reviewCode = "@<code>{\\code{\\}\\\\}";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
 Deno.test("Formula", () => {
-    const sbContent = "[$ E = mc^2]";
-    const reviewCode = "@<m>{E = mc^2}";
+    const sbContent = "[$ x = \\frac{1}{2}]";
+    const reviewCode = "@<m>{x = \\frac{1\\}{2\\}}";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
