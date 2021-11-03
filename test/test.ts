@@ -113,3 +113,36 @@ $ cmd
 //}`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Code block", () => {
+    const sbContent = `code:a.js
+ function a() {
+     console.log("hoge");
+ }
+foo`;
+    const reviewCode = `//emlist[a.js]{
+function a() {
+    console.log("hoge");
+}
+//}
+
+foo`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Table", () => {
+    const sbContent = `table:title
+ abc\tdef
+ aaaaaaaaaaaa\tbbbbbb
+ col1\tcol2
+text`;
+    const reviewCode = `//emtable[title]{
+abc\tdef
+------------
+aaaaaaaaaaaa\tbbbbbb
+col1\tcol2
+//}
+
+text`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});

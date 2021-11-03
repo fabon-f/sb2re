@@ -19,8 +19,8 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
         if (n.type === "title") {
             out += `= ${n.text}`;
             out += "\n\n";
-        } else if (n.type === "line") {
-            if (n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
+        } else {
+            if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
                 // 引用
                 if (!state.inBlockQuote) {
                     // 引用開始
@@ -36,16 +36,26 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     out += "//}\n\n";
                 }
             }
-            if (n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "commandLine") {
+            if (n.type === "codeBlock" && n.indent === 0) {
+                // コードブロック
+                out += `//emlist[${n.fileName}]{\n${n.content}\n//}\n\n`;
+                continue;
+            }
+            if (n.type === "table" && n.indent === 0) {
+                // 表
+                out += `${generateReViewTable(n)}\n\n`;
+                continue;
+            }
+            if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "commandLine") {
                 // コマンドライン
                 out += `//cmd{\n${n.nodes[0].raw}\n//}\n\n`;
                 continue;
             }
-            if (n.indent !== 0 && n.nodes[0].type === "quote") {
+            if (n.type === "line" && n.indent !== 0 && n.nodes[0].type === "quote") {
                 // 箇条書きの中の引用、現時点では非対応
                 console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
             }
-            if (n.indent !== 0) {
+            if (n.type === "line" && n.indent !== 0) {
                 // 箇条書き
                 if (!state.inItemization) {
                     // 箇条書き開始
@@ -61,14 +71,14 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     out += "\n";
                 }
             }
-            if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
+            if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
                 const boldNode = n.nodes[0];
                 const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
                 if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
                 out += `${header} ${boldNode.nodes[0].text}`;
                 out += "\n\n";
-            } else {
+            } else if (n.type === "line") {
                 out += n.nodes.map(nodeToReView).join("");
                 out += "\n\n";
             }
@@ -76,6 +86,24 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
     }
 
     return out;
+}
+
+function generateReViewTable(node: scrapboxParser.Table) {
+    const headerColumns = node.cells[0];
+    if (headerColumns === undefined) {
+        return `//emtable[${node.fileName}]{\n//}`;
+    }
+    const headerText = generateReViewTableColumn(headerColumns);
+    const borderText = "------------";
+    return `//emtable[${node.fileName}]{
+${headerText}
+${borderText}
+${node.cells.slice(1).map(generateReViewTableColumn).join("\n")}
+//}`;
+}
+
+function generateReViewTableColumn(column: scrapboxParser.Node[][]): string {
+    return column.map(cell => cell.map(nodeToReView).join("")).join("\t");
 }
 
 function nodeToReView(node: scrapboxParser.Node): string {
