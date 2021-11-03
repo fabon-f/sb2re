@@ -1,11 +1,11 @@
 import { scrapboxParser } from "./deps.ts"
 
 type ReViewOption = {
-    baseHeaderLevel? : number;
+    baseHeadingLevel? : number;
 };
 
 function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): string {
-    const baseHeaderLevel = option.baseHeaderLevel || 3;
+    const baseHeadingLevel = option.baseHeadingLevel || 3;
 
     let out = "";
 
@@ -17,7 +17,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
                 const boldNode = n.nodes[0];
-                const header = "=".repeat(baseHeaderLevel + 2 - boldNode.rawDecos.length);
+                const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
                 if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
                 out += `${header} ${boldNode.nodes[0].text}`;
                 out += "\n";

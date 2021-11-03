@@ -14,7 +14,7 @@ Deno.test("Heading", () => {
     assertEquals(scrapboxToReView(sbContent), reviewCode)
 });
 
-Deno.test("Heading with baseHeaderLevel", () => {
+Deno.test("Heading with baseHeadingLevel", () => {
     const sbContent = `hoge
 [**** hoge]
 [*** fuga]`;
@@ -22,5 +22,5 @@ Deno.test("Heading with baseHeaderLevel", () => {
 == hoge
 === fuga
 `;
-    assertEquals(scrapboxToReView(sbContent, { baseHeaderLevel: 4 }), reviewCode)
+    assertEquals(scrapboxToReView(sbContent, { baseHeadingLevel: 4 }), reviewCode)
 });
