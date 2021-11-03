@@ -11,7 +11,8 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
 
     let out = "";
     const state = {
-        inItemization: false
+        inItemization: false,
+        inBlockQuote: false
     };
 
     for (const n of ast) {
@@ -19,6 +20,20 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             out += `= ${n.text}`;
             out += "\n\n";
         } else if (n.type === "line") {
+            if (n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
+                // 引用
+                if (!state.inBlockQuote) {
+                    // 引用開始
+                    state.inBlockQuote = true;
+                    out += "//quote{\n";
+                }
+                out += `${n.nodes[0].nodes.map(nodeToReView).join("")}\n`;
+                continue;
+            }
+            if (n.indent !== 0 && n.nodes[0].type === "quote") {
+                // 箇条書きの中の引用、現時点では非対応
+                console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
+            }
             if (n.indent !== 0) {
                 // 箇条書き
                 if (!state.inItemization) {
@@ -33,6 +48,11 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     // 箇条書き終了
                     state.inItemization = false;
                     out += "\n";
+                }
+                if (state.inBlockQuote) {
+                    // 引用終了
+                    state.inBlockQuote = false;
+                    out += "//}\n\n";
                 }
             }
             if (n.nodes.length === 1 && n.nodes[0].type === "decoration" && /^\*+$/.test(n.nodes[0].rawDecos)) {

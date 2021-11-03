@@ -86,3 +86,17 @@ foo`;
 foo`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Block Quote", () => {
+    const sbContent = `>hoge
+>hoge[* fuga]
+foo
+`;
+    const reviewCode = `//quote{
+hoge
+hoge@<strong>{fuga}
+//}
+
+foo`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
