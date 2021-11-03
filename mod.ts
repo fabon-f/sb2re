@@ -25,6 +25,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 out += "\n";
             } else {
                 out += n.nodes.map(nodeToReView).join("");
+                out += "\n";
             }
         }
     }
