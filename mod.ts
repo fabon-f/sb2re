@@ -93,6 +93,5 @@ function nodeToReView(node: scrapboxParser.Node): string {
 
 export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {
     const ast = scrapboxParser.parse(src, option);
-    console.dir(ast, {depth:100});
     return generateReView(ast, option);
 }
