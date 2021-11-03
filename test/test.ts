@@ -10,13 +10,15 @@ function assertConvertion(sbContent: string, reviewCode: string, option?: Conver
 Deno.test("Heading", () => {
     const sbContent = `hoge
 [*** hoge]
-[** fuga]`;
+[** fuga]
+[* piyo]`;
     const reviewCode = `= hoge
 
 == hoge
 
 === fuga
-`;
+
+@<strong>{piyo}`;
     assertConvertion(sbContent, reviewCode);
 });
 
