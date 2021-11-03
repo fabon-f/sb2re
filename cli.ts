@@ -1,7 +1,23 @@
-import { flags, io } from "./deps.ts"
+import { flags, io, colors } from "./deps.ts"
 import scrapboxToReView from "./mod.ts"
 
-const options = flags.parse(Deno.args, { string: ["_"] });
+const options = flags.parse(Deno.args, { string: ["_"], boolean: ["help"], alias: { "h": "help" } });
+
+const usage =
+`sb2re - Convert Scrapbox text to Re:VIEW
+
+${colors.bold("Usage")}
+    cat input | sb2re [options] > out.re
+    sb2re input out.re [options]
+
+${colors.bold("Options")}
+    -h, --help                Show this help.
+    --base-heading-level      Specify the largest heading level (Default: 3. This means \`[*** ]\` corresponds to Re:VIEW's \`==\`)`;
+
+if (options.help) {
+    console.log(usage);
+    Deno.exit(0);
+}
 
 const baseHeadingLevel = options["base-heading-level"] as string | number | undefined | boolean | Object;
 if (baseHeadingLevel !== undefined && typeof baseHeadingLevel !== "number") {
