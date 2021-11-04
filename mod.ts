@@ -78,7 +78,15 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
                 out += `${header} ${boldNode.nodes[0].text}`;
                 out += "\n\n";
-            } else if (n.type === "line") {
+                continue;
+            }
+            if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "image") {
+                // 画像
+                // とりあえずsrcそのまま入れる
+                out += `//indepimage[${escapeBlockCommandOption(n.nodes[0].src)}]\n\n`;
+                continue;
+            }
+            if (n.type === "line") {
                 out += n.nodes.map(nodeToReView).join("");
                 out += "\n\n";
             }
@@ -138,6 +146,8 @@ function nodeToReView(node: scrapboxParser.Node): string {
         return `@<code>{${escapeInlineCommand(node.text)}}`;
     } else if (node.type === "formula") {
         return `@<m>{${escapeInlineCommand(node.formula)}}`;
+    } else if (node.type === "image") {
+        return `@<icon>{${escapeInlineCommand(node.src)}}`;
     } else if (node.type === "plain") {
         return node.text;
     } else {

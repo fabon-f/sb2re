@@ -148,3 +148,11 @@ col1\tcol2
 text`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Image", () => {
+    const sbContent = "[https://scrapbox.io/files/aaaaa.jpg]\nhoge[https://scrapbox.io/files/bbbbb.jpg]fuga";
+    const reviewCode = `//indepimage[https://scrapbox.io/files/aaaaa.jpg]
+
+hoge@<icon>{https://scrapbox.io/files/bbbbb.jpg}fuga`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
