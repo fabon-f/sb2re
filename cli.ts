@@ -20,7 +20,7 @@ if (options.help) {
     Deno.exit(0);
 }
 
-const baseHeadingLevel = options["base-heading-level"] as string | number | undefined | boolean | Object;
+const baseHeadingLevel = options["base-heading-level"] as unknown;
 if (baseHeadingLevel !== undefined && typeof baseHeadingLevel !== "number") {
     console.error("Error: base-heading-level option should be number");
     Deno.exit(1);
