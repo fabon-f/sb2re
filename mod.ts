@@ -112,7 +112,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
         }
     }
 
-    return out;
+    return out.replaceAll(/\n{2,}/g, "\n\n").replace(/\n*$/, "\n");
 }
 
 function generateReViewTable(node: scrapboxParser.Table) {
