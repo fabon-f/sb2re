@@ -86,6 +86,10 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 out += `//indepimage[${escapeBlockCommandOption(n.nodes[0].src)}]\n\n`;
                 continue;
             }
+            if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "formula") {
+                out += `//texequation{\n${n.nodes[0].formula}\n//}`;
+                continue;
+            }
             if (n.type === "line") {
                 out += n.nodes.map(nodeToReView).join("");
                 out += "\n\n";

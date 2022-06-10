@@ -60,8 +60,22 @@ Deno.test("Inline code", () => {
 });
 
 Deno.test("Formula", () => {
+    const sbContent = "The answer should be [$ x = \\frac{1}{2}]";
+    const reviewCode = "The answer should be @<m>{x = \\frac{1\\}{2\\}}";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Formula in itemization", () => {
+    const sbContent = " [$ x = \\frac{1}{2}]";
+    const reviewCode = " * @<m>{x = \\frac{1\\}{2\\}}";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Block formula", () => {
     const sbContent = "[$ x = \\frac{1}{2}]";
-    const reviewCode = "@<m>{x = \\frac{1\\}{2\\}}";
+    const reviewCode = `//texequation{
+x = \\frac{1}{2}
+//}`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
