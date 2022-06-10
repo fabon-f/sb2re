@@ -216,3 +216,24 @@ aaa
 //}`;
     assertConvertion(sbContent2, reviewCode2, { hasTitle: false });
 });
+
+Deno.test("Block quote in the last line", () => {
+    // In Re:VIEW format, newline should exist after itemization
+    const sbContent = ">aaa";
+    const reviewCode = "//quote{\naaa\n//}";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Itemization after block quote", () => {
+    // In Re:VIEW format, newline should exist after itemization
+    const sbContent = ">aaa\n\thoge";
+    const reviewCode = "//quote{\naaa\n//}\n\n * hoge";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("Block quote after itemization", () => {
+    // In Re:VIEW format, newline should exist after itemization
+    const sbContent = "\thoge\n>aaa\nhoge";
+    const reviewCode = " * hoge\n\n//quote{\naaa\n//}\n\nhoge";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});

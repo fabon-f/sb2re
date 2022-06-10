@@ -20,6 +20,29 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             out += `= ${n.text}`;
             out += "\n\n";
         } else {
+            if (n.indent === 0 && state.inItemization) {
+                // 箇条書き終了
+                state.inItemization = false;
+                out += "\n";
+            }
+
+            if (!(n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") && state.inBlockQuote) {
+                // 引用終了
+                state.inBlockQuote = false;
+                out += "//}\n\n";
+            }
+
+            if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
+                // 引用
+                if (!state.inBlockQuote) {
+                    // 引用開始
+                    state.inBlockQuote = true;
+                    out += "//quote{\n";
+                }
+                out += `${n.nodes[0].nodes.map(nodeToReView).join("")}\n`;
+                continue;
+            }
+
             if (n.indent !== 0) {
                 // 箇条書き
                 if (!state.inItemization) {
@@ -42,29 +65,8 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     out += ` ${"*".repeat(n.indent)}\n`;
                     continue;
                 }
-            } else {
-                if (state.inItemization) {
-                    // 箇条書き終了
-                    state.inItemization = false;
-                    out += "\n";
-                }
             }
-            if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
-                // 引用
-                if (!state.inBlockQuote) {
-                    // 引用開始
-                    state.inBlockQuote = true;
-                    out += "//quote{\n";
-                }
-                out += `${n.nodes[0].nodes.map(nodeToReView).join("")}\n`;
-                continue;
-            } else {
-                if (state.inBlockQuote) {
-                    // 引用終了
-                    state.inBlockQuote = false;
-                    out += "//}\n\n";
-                }
-            }
+
             if (n.type === "codeBlock" && n.indent === 0) {
                 // コードブロック
                 out += `//emlist[${escapeBlockCommandOption(n.fileName)}]{\n${n.content}\n//}\n\n`;
@@ -185,6 +187,7 @@ function escapeBlockCommandOption(option: string) {
 }
 
 export default function scrapboxToReView(src: string, option: ConverterOption = {}): string {
-    const ast = scrapboxParser.parse(src, option);
+    // 箇条書き/引用終了処理のため、番兵として最後に空行を入れる
+    const ast = scrapboxParser.parse(src + "\n", option);
     return generateReView(ast, option);
 }
