@@ -20,6 +20,35 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             out += `= ${n.text}`;
             out += "\n\n";
         } else {
+            if (n.indent !== 0) {
+                // 箇条書き
+                if (!state.inItemization) {
+                    // 箇条書き開始
+                    state.inItemization = true;
+                }
+                if (n.type === "line") {
+                    const lineContent = n.nodes.map(nodeToReView).join("");
+                    out += ` ${"*".repeat(n.indent)} ${lineContent}\n`;
+                    continue;
+                } else {
+                    if (n.type === "table") {
+                        // 箇条書きの中の表、現時点では非対応
+                        console.error(`Table inside itemization not supported: ${n.fileName}`);
+                    }
+                    if (n.type === "codeBlock") {
+                        // 箇条書きの中のコードブロック、現時点では非対応
+                        console.error(`Code block inside itemization not supported: ${n.fileName}`);
+                    }
+                    out += ` ${"*".repeat(n.indent)}\n`;
+                    continue;
+                }
+            } else {
+                if (state.inItemization) {
+                    // 箇条書き終了
+                    state.inItemization = false;
+                    out += "\n";
+                }
+            }
             if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
                 // 引用
                 if (!state.inBlockQuote) {
@@ -54,30 +83,6 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             if (n.type === "line" && n.indent !== 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
                 // 箇条書きの中の引用、現時点では非対応
                 console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
-            }
-            if (n.type === "table" && n.indent !== 0) {
-                // 箇条書きの中の表、現時点では非対応
-                console.error(`Table inside itemization not supported: ${n.fileName}`);
-            }
-            if (n.type === "codeBlock" && n.indent !== 0) {
-                // 箇条書きの中のコードブロック、現時点では非対応
-                console.error(`Code block inside itemization not supported: ${n.fileName}`);
-            }
-            if (n.type === "line" && n.indent !== 0) {
-                // 箇条書き
-                if (!state.inItemization) {
-                    // 箇条書き開始
-                    state.inItemization = true;
-                }
-                const lineContent = n.nodes.map(nodeToReView).join("");
-                out += ` ${"*".repeat(n.indent)} ${lineContent}\n`;
-                continue;
-            } else {
-                if (state.inItemization) {
-                    // 箇条書き終了
-                    state.inItemization = false;
-                    out += "\n";
-                }
             }
             if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "decoration" && n.nodes[0].rawDecos != "*" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し

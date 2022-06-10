@@ -176,3 +176,43 @@ Deno.test("Empty list item", () => {
     const reviewCode = "test\n\n * \n\ntest2";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("code block after itemization", () => {
+    // In Re:VIEW format, newline should exist after itemization
+    const sbContent = `\taaa
+code:js
+ const a = "";`;
+    const reviewCode = ` * aaa
+
+//emlist[js]{
+const a = "";
+//}`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("code block and table after itemization", () => {
+    // In Re:VIEW format, newline should exist after itemization
+    const sbContent1 = `\taaa
+code:js
+ const a = "";`;
+    const reviewCode1 = ` * aaa
+
+//emlist[js]{
+const a = "";
+//}`;
+    assertConvertion(sbContent1, reviewCode1, { hasTitle: false });
+
+    const sbContent2 = `\taaa
+table:hoge
+ aaa
+
+`;
+    const reviewCode2 = ` * aaa
+
+//emtable[hoge]{
+aaa
+------------
+
+//}`;
+    assertConvertion(sbContent2, reviewCode2, { hasTitle: false });
+});
