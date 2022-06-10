@@ -32,7 +32,7 @@ const result = scrapboxToReView(src, {
 });
 
 if (options._[1] === "-" || options._[1] === undefined) {
-    console.log(result);
+    console.log(result.replace(/\n$/, ""));
 } else {
     await Deno.writeTextFile(options._[1].toString(), result);
 }
