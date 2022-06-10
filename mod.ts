@@ -55,6 +55,14 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 // 箇条書きの中の引用、現時点では非対応
                 console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
             }
+            if (n.type === "table" && n.indent !== 0) {
+                // 箇条書きの中の表、現時点では非対応
+                console.error(`Table inside itemization not supported: ${n.fileName}`);
+            }
+            if (n.type === "codeBlock" && n.indent !== 0) {
+                // 箇条書きの中のコードブロック、現時点では非対応
+                console.error(`Code block inside itemization not supported: ${n.fileName}`);
+            }
             if (n.type === "line" && n.indent !== 0) {
                 // 箇条書き
                 if (!state.inItemization) {
