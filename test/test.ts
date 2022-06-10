@@ -156,3 +156,9 @@ Deno.test("Image", () => {
 hoge@<icon>{https://scrapbox.io/files/bbbbb.jpg}fuga`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("Empty list item", () => {
+    const sbContent = "test\n \ntest2";
+    const reviewCode = "test\n\n * \n\ntest2";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});

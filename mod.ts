@@ -51,7 +51,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 out += `//cmd{\n${n.nodes[0].raw}\n//}\n\n`;
                 continue;
             }
-            if (n.type === "line" && n.indent !== 0 && n.nodes[0].type === "quote") {
+            if (n.type === "line" && n.indent !== 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
                 // 箇条書きの中の引用、現時点では非対応
                 console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
             }
