@@ -237,3 +237,9 @@ Deno.test("Block quote after itemization", () => {
     const reviewCode = " * hoge\n\n//quote{\naaa\n//}\n\nhoge";
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
+
+Deno.test("lines larger than baseHeadingLevel", () => {
+    const sbContent = "[******* large!!!]\nh";
+    const reviewCode = "@<strong>{large!!!}\n\nh";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false, baseHeadingLevel: 3 });
+});

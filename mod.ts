@@ -89,11 +89,13 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "decoration" && n.nodes[0].rawDecos != "*" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
                 const boldNode = n.nodes[0];
-                const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
-                if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
-                out += `${header} ${boldNode.nodes[0].text}`;
-                out += "\n\n";
-                continue;
+                if (boldNode.rawDecos.length <= baseHeadingLevel) {
+                    const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
+                    if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
+                    out += `${header} ${boldNode.nodes[0].text}`;
+                    out += "\n\n";
+                    continue;
+                }
             }
             if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "image") {
                 // 画像
