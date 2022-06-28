@@ -28,7 +28,15 @@ if (baseHeadingLevel !== undefined && typeof baseHeadingLevel !== "number") {
 
 const src = await readSource();
 const result = scrapboxToReView(src, {
-    baseHeadingLevel
+    baseHeadingLevel,
+    logger: {
+        error(message: string) {
+            console.error(colors.bold(colors.red(message)));
+        },
+        warn(message: string) {
+            console.warn(message);
+        }
+    }
 });
 
 if (options._[1] === "-" || options._[1] === undefined) {
