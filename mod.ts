@@ -1,13 +1,24 @@
 import { scrapboxParser } from "./deps.ts"
 
+
+type Logger = {
+    error: (message: string) => unknown;
+};
+
 type ReViewOption = {
     baseHeadingLevel? : number;
+    logger?: Logger;
 };
 
 export type ConverterOption = ReViewOption & scrapboxParser.ParserOption;
 
 function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): string {
     const baseHeadingLevel = option.baseHeadingLevel || 3;
+    const logger = option.logger || {
+        error(message: string) {
+            console.error(message);
+        }
+    };
 
     let out = "";
     const state = {
@@ -39,7 +50,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     state.inBlockQuote = true;
                     out += "//quote{\n";
                 }
-                out += `${n.nodes[0].nodes.map(nodeToReView).join("")}\n`;
+                out += `${n.nodes[0].nodes.map(n => nodeToReView(n, logger)).join("")}\n`;
                 continue;
             }
 
@@ -50,17 +61,17 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     state.inItemization = true;
                 }
                 if (n.type === "line") {
-                    const lineContent = n.nodes.map(nodeToReView).join("");
+                    const lineContent = n.nodes.map(n => nodeToReView(n, logger)).join("");
                     out += ` ${"*".repeat(n.indent)} ${lineContent}\n`;
                     continue;
                 } else {
                     if (n.type === "table") {
                         // 箇条書きの中の表、現時点では非対応
-                        console.error(`Table inside itemization not supported: ${n.fileName}`);
+                        logger.error(`Table inside itemization not supported: ${n.fileName}`);
                     }
                     if (n.type === "codeBlock") {
                         // 箇条書きの中のコードブロック、現時点では非対応
-                        console.error(`Code block inside itemization not supported: ${n.fileName}`);
+                        logger.error(`Code block inside itemization not supported: ${n.fileName}`);
                     }
                     out += ` ${"*".repeat(n.indent)}\n`;
                     continue;
@@ -74,7 +85,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             }
             if (n.type === "table" && n.indent === 0) {
                 // 表
-                out += `${generateReViewTable(n)}\n\n`;
+                out += `${generateReViewTable(n, logger)}\n\n`;
                 continue;
             }
             if (n.type === "line" && n.indent === 0 && n.nodes.length !== 0 && n.nodes[0].type === "commandLine") {
@@ -84,7 +95,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
             }
             if (n.type === "line" && n.indent !== 0 && n.nodes.length !== 0 && n.nodes[0].type === "quote") {
                 // 箇条書きの中の引用、現時点では非対応
-                console.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
+                logger.error(`Blockquote inside itemization not supported: ${n.nodes[0].raw}`);
             }
             if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "decoration" && n.nodes[0].rawDecos != "*" && /^\*+$/.test(n.nodes[0].rawDecos)) {
                 // 見出し
@@ -108,7 +119,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 continue;
             }
             if (n.type === "line") {
-                out += n.nodes.map(nodeToReView).join("");
+                out += n.nodes.map(n => nodeToReView(n, logger)).join("");
                 out += "\n\n";
             }
         }
@@ -117,28 +128,28 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
     return out.replaceAll(/\n{2,}/g, "\n\n").replace(/\n*$/, "\n");
 }
 
-function generateReViewTable(node: scrapboxParser.Table) {
+function generateReViewTable(node: scrapboxParser.Table, logger: Logger) {
     const headerColumns = node.cells[0];
     if (headerColumns === undefined) {
         return `//emtable[${escapeBlockCommandOption(node.fileName)}]{\n//}`;
     }
-    const headerText = generateReViewTableColumn(headerColumns);
+    const headerText = generateReViewTableColumn(headerColumns, logger);
     const borderText = "------------";
     return `//emtable[${escapeBlockCommandOption(node.fileName)}]{
 ${headerText}
 ${borderText}
-${node.cells.slice(1).map(generateReViewTableColumn).join("\n")}
+${node.cells.slice(1).map(column => generateReViewTableColumn(column, logger)).join("\n")}
 //}`;
 }
 
-function generateReViewTableColumn(column: scrapboxParser.Node[][]): string {
-    return column.map(cell => cell.map(nodeToReView).join("")).join("\t");
+function generateReViewTableColumn(column: scrapboxParser.Node[][], logger: Logger): string {
+    return column.map(cell => cell.map(n => nodeToReView(n, logger)).join("")).join("\t");
 }
 
-function nodeToReView(node: scrapboxParser.Node): string {
+function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
     if (node.type === "link") {
         if (node.pathType === "relative") {
-            console.error(`Can't convert relative links. Please use absolute links instead: ${node.raw}`);
+            logger.error(`Can't convert relative links. Please use absolute links instead: ${node.raw}`);
             return node.raw;
         }
         if (node.pathType === "root") {
@@ -148,10 +159,10 @@ function nodeToReView(node: scrapboxParser.Node): string {
         }
         return node.content === "" ? `@<href>{${escapeHrefUrl(node.href)}}` : `@<href>{${escapeHrefUrl(node.href)}, ${escapeHrefUrl(node.content)}}`;
     } else if (node.type === "hashTag") {
-        console.error(`Can't convert relative links. Please use absolute links instead: ${node.raw}`);
+        logger.error(`Can't convert relative links. Please use absolute links instead: ${node.raw}`);
         return node.raw;
     } else if (node.type === "strong") {
-        return `@<strong>{${escapeInlineCommand(node.nodes.map(nodeToReView).join(""))}}`;
+        return `@<strong>{${escapeInlineCommand(node.nodes.map(n => nodeToReView(n, logger)).join(""))}}`;
     } else if (node.type === "decoration") {
         return node.decos.reduce((inside, decoration) => {
             if (/\*-[0-9]*/.test(decoration)) {
@@ -162,7 +173,7 @@ function nodeToReView(node: scrapboxParser.Node): string {
                 return `@<del>{${inside}}`;
             }
             return inside;
-        }, escapeInlineCommand(node.nodes.map(nodeToReView).join("")));
+        }, escapeInlineCommand(node.nodes.map(n => nodeToReView(n, logger)).join("")));
     } else if (node.type === "code") {
         return `@<code>{${escapeInlineCommand(node.text)}}`;
     } else if (node.type === "formula") {
