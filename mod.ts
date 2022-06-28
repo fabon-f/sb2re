@@ -190,6 +190,7 @@ function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
         logger.warn(`An icon is used: ${node.raw}`);
         return `@<icon>{${node.path}.icon}`;
     } else {
+        logger.error(`Unsupported syntax: ${node.raw}`);
         return node.raw;
     }
 }
