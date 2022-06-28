@@ -177,6 +177,12 @@ hoge@<icon>{https://scrapbox.io/files/bbbbb.jpg}fuga`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
+Deno.test("Icon", () => {
+    const sbContent = "[hoge.icon][/help-jp/Scrapbox.icon]";
+    const reviewCode = `@<icon>{hoge.icon}@<icon>{/help-jp/Scrapbox.icon}`;
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
 Deno.test("Empty list item", () => {
     const sbContent = "test\n \ntest2";
     const reviewCode = "test\n\n * \n\ntest2";

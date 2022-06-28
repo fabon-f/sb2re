@@ -186,6 +186,9 @@ function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
         return `@<icon>{${escapeInlineCommand(node.src)}}`;
     } else if (node.type === "plain") {
         return node.text;
+    } else if (node.type === "icon") {
+        logger.warn(`An icon is used: ${node.raw}`);
+        return `@<icon>{${node.path}.icon}`;
     } else {
         return node.raw;
     }
