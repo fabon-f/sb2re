@@ -3,6 +3,7 @@ import { scrapboxParser } from "./deps.ts"
 
 type Logger = {
     error: (message: string) => unknown;
+    warn: (message: string) => unknown;
 };
 
 type ReViewOption = {
@@ -17,6 +18,9 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
     const logger = option.logger || {
         error(message: string) {
             console.error(message);
+        },
+        warn(message: string) {
+            console.warn(message);
         }
     };
 
@@ -153,7 +157,7 @@ function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
             return node.raw;
         }
         if (node.pathType === "root") {
-            console.info(`An internal link to a Scrapbox's page is used: ${node.raw}`);
+            logger.warn(`An internal link to a Scrapbox's page is used: ${node.raw}`);
             const href = new URL(node.href, "https://scrapbox.io").href;
             return `@<href>{${escapeHrefUrl(href)}}`;
         }
