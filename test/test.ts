@@ -3,8 +3,14 @@ import { asserts } from "./test_helper.ts"
 
 const { assertEquals } = asserts;
 
-function assertConvertion(sbContent: string, reviewCode: string, option?: ConverterOption) {
-    assertEquals(scrapboxToReView(sbContent, option).trim(), reviewCode.trim());
+function assertConvertion(sbContent: string, reviewCode: string, option: ConverterOption = {}) {
+    const logger = option.logger || {
+        error(message: string) {
+            console.error(message);
+        },
+        warn(_message: string) {}
+    };
+    assertEquals(scrapboxToReView(sbContent, Object.assign({}, option, { logger })).trim(), reviewCode.trim());
 }
 
 Deno.test("Heading", () => {
