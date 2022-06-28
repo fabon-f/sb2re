@@ -170,16 +170,18 @@ text`;
 });
 
 Deno.test("Image", () => {
-    const sbContent = "[https://scrapbox.io/files/aaaaa.jpg]\nhoge[https://scrapbox.io/files/bbbbb.jpg]fuga";
+    const sbContent = "[https://scrapbox.io/files/aaaaa.jpg]\n[[https://scrapbox.io/files/bbbbb.jpg]]\nhoge[https://scrapbox.io/files/bbbbb.jpg]fuga";
     const reviewCode = `//indepimage[https://scrapbox.io/files/aaaaa.jpg]
+
+//indepimage[https://scrapbox.io/files/bbbbb.jpg]
 
 hoge@<icon>{https://scrapbox.io/files/bbbbb.jpg}fuga`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 
 Deno.test("Icon", () => {
-    const sbContent = "[hoge.icon][/help-jp/Scrapbox.icon]";
-    const reviewCode = `@<icon>{hoge.icon}@<icon>{/help-jp/Scrapbox.icon}`;
+    const sbContent = "[hoge.icon][/help-jp/Scrapbox.icon][[fuga.icon]]";
+    const reviewCode = `@<icon>{hoge.icon}@<icon>{/help-jp/Scrapbox.icon}@<icon>{fuga.icon}`;
     assertConvertion(sbContent, reviewCode, { hasTitle: false });
 });
 

@@ -112,7 +112,7 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                     continue;
                 }
             }
-            if (n.type === "line" && n.nodes.length === 1 && n.nodes[0].type === "image") {
+            if (n.type === "line" && n.nodes.length === 1 && (n.nodes[0].type === "image" || n.nodes[0].type === "strongImage")) {
                 // 画像
                 // とりあえずsrcそのまま入れる
                 out += `//indepimage[${escapeBlockCommandOption(n.nodes[0].src)}]\n\n`;
@@ -186,7 +186,7 @@ function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
         return `@<icon>{${escapeInlineCommand(node.src)}}`;
     } else if (node.type === "plain") {
         return node.text;
-    } else if (node.type === "icon") {
+    } else if (node.type === "icon" || node.type === "strongIcon") {
         logger.warn(`An icon is used: ${node.raw}`);
         return `@<icon>{${node.path}.icon}`;
     } else {
