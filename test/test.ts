@@ -257,3 +257,15 @@ Deno.test("lines larger than baseHeadingLevel", () => {
     const reviewCode = "@<strong>{large!!!}\n\nh";
     assertConvertion(sbContent, reviewCode, { hasTitle: false, baseHeadingLevel: 3 });
 });
+
+Deno.test("enlarged image", () => {
+    const sbContent = "[*** [https://scrapbox.io/files/aaaaa.jpg]]\nimage";
+    const reviewCode = "//indepimage[https://scrapbox.io/files/aaaaa.jpg]\n\nimage";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});
+
+Deno.test("enlarged icon", () => {
+    const sbContent = "[*** [https://example.org/hoge.jpg]]を";
+    const reviewCode = "@<icon>{https://example.org/hoge.jpg}を";
+    assertConvertion(sbContent, reviewCode, { hasTitle: false });
+});

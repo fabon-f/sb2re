@@ -106,8 +106,11 @@ function generateReView(ast: scrapboxParser.Page, option: ReViewOption = {}): st
                 const boldNode = n.nodes[0];
                 if (boldNode.rawDecos.length <= baseHeadingLevel) {
                     const header = "=".repeat(baseHeadingLevel + 2 - boldNode.rawDecos.length);
-                    if (boldNode.nodes[0].type !== "plain") { throw new Error("inside header") }
-                    out += `${header} ${boldNode.nodes[0].text}`;
+                    if (boldNode.nodes.length === 1 && boldNode.nodes[0].type === "image") {
+                        out += `//indepimage[${escapeBlockCommandOption(boldNode.nodes[0].src)}]\n\n`;
+                        continue;
+                    }
+                    out += `${header} ${boldNode.nodes.map(n => nodeToReView(n, logger)).join("")}`;
                     out += "\n\n";
                     continue;
                 }
@@ -168,6 +171,9 @@ function nodeToReView(node: scrapboxParser.Node, logger: Logger): string {
     } else if (node.type === "strong") {
         return `@<strong>{${escapeInlineCommand(node.nodes.map(n => nodeToReView(n, logger)).join(""))}}`;
     } else if (node.type === "decoration") {
+        if (node.nodes.length === 1 && node.nodes[0].type === "image") {
+            return nodeToReView(node.nodes[0], logger)
+        }
         return node.decos.reduce((inside, decoration) => {
             if (/\*-[0-9]*/.test(decoration)) {
                 return `@<strong>{${inside}}`;
