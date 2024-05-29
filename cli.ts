@@ -5,8 +5,8 @@ import scrapboxToReView from "./mod.ts";
 
 const options = parseArgs(Deno.args, {
   string: ["_"],
-  boolean: ["help"],
-  alias: { "h": "help" },
+  boolean: ["help", "version"],
+  alias: { "h": "help", "v": "version" },
 });
 
 const usage = `sb2re - Convert Scrapbox text to Re:VIEW
@@ -18,10 +18,19 @@ ${colors.bold("Usage")}
 
 ${colors.bold("Options")}
     -h, --help                Show this help.
+    -v, --version             Print version info
     --base-heading-level      Specify the largest heading level (Default: 3. This means \`[*** ]\` corresponds to Re:VIEW's \`==\`)`;
 
 if (options.help) {
   console.log(usage);
+  Deno.exit(0);
+}
+
+if (options.version) {
+  const { default: denoConfig } = await import("./deno.json", {
+    with: { type: "json" },
+  });
+  console.log(denoConfig.version);
   Deno.exit(0);
 }
 
