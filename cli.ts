@@ -1,7 +1,9 @@
-import { flags, io, colors } from "./deps.ts"
+import { parseArgs } from "@std/cli/parse-args"
+import * as colors from "@std/fmt/colors"
+import { readAll } from "@std/io"
 import scrapboxToReView from "./mod.ts"
 
-const options = flags.parse(Deno.args, { string: ["_"], boolean: ["help"], alias: { "h": "help" } });
+const options = parseArgs(Deno.args, { string: ["_"], boolean: ["help"], alias: { "h": "help" } });
 
 const usage =
 `sb2re - Convert Scrapbox text to Re:VIEW
@@ -48,15 +50,12 @@ if (options._[1] === "-" || options._[1] === undefined) {
 async function readSource() {
     if (options._.length === 0 || options._[0] === "-") {
         // read from stdin
-        if (Deno.isatty(Deno.stdin.rid)) {
+        if (Deno.stdin.isTerminal()) {
             console.log(colors.bold(colors.red("Specify input file.")));
             Deno.exit(1);
         }
-        const lines = [];
-        for await (const line of io.readLines(Deno.stdin)) {
-            lines.push(line);
-        }
-        return lines.join("\n");
+        const buf = await readAll(Deno.stdin)
+        return new TextDecoder().decode(buf)
     } else {
         return await Deno.readTextFile(options._[0].toString());
     }
