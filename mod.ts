@@ -1,4 +1,4 @@
-import { scrapboxParser } from "./deps.ts";
+import * as scrapboxParser from "@progfay/scrapbox-parser";
 
 type Logger = {
   error: (message: string) => unknown;
