@@ -1,4 +1,4 @@
-import scrapboxToReView, { ConverterOption } from "../mod.ts";
+import scrapboxToReView, { type ConverterOption } from "../mod.ts";
 import { asserts } from "./test_helper.ts";
 
 const { assertEquals } = asserts;
