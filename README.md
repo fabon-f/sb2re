@@ -1,28 +1,29 @@
 # sb2re
+
 Convert Scrapbox format to Re:VIEW format
-
-## Usage
-
-You can execute this command by `deno run` inside the root directory of the project.
-
-```sh
-# In the project's root directory
-deno run -A cli.ts [args...]
-
-# help
-deno run -A cli.ts --help
-
-# convertion
-cat input | deno run -A cli.ts [options] > out.re
-deno run -A cli.ts input [options] > out.re
-deno run -A cli.ts input out.re [options]
-```
 
 ## Installation
 
-You can install this command globally using `deno install`. If you want to update, please execute installation command again.
+```sh
+deno install --global --allow-read --allow-write --name sb2re jsr:@fabon/sb2re/cli
+```
+
+Alternatively, you can also run the CLI command **without installation**.
 
 ```sh
-# Install / Update
-deno install -Af --name=sb2re https://github.com/fabon-f/sb2re/raw/master/cli.ts
+# run without installation
+deno run --allow-read --allow-write jsr:@fabon/sb2re/cli input out.re
+```
+
+## Usage
+
+```sh
+sb2re [args...]
+# help
+sb2re --help
+
+# convertion
+cat input | sb2re [options] > out.re
+sb2re input [options] > out.re
+sb2re input out.re [options]
 ```
